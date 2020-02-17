@@ -1,69 +1,30 @@
-# pyDISORT
+#!/usr/bin/env python
+"""
+Python wrapper to the DISORT library
 
-Original pyDISORT forked from chanGimeno/pyDISORT on 27/11/2019 by J Cook
-and extended to provide:
+Module '_disort' is auto-generated with f2py (version:2).
+"""
+from __version__ import __version__
 
-a) a wide range of impurities including glacier algae
-b) SNICAR-style interface for defining snow/ice/impurity properties
-c) easy iteration over wavelength
+import _disort
 
-Citation for original DISORT model:
-(1) K. Stamnes, SC. Tsay, W. Wiscombe and K. Jayaweera, Numerically
-    stable algorithm for discrete-ordinate-method radiative
-    transfer in multiple scattering and emitting layered media,
-    Appl Opt 27 (1988) (12), pp. 2502–2509.
+##########################################################################################################
+#
+# functions
+#
+##########################################################################################################
 
-# How to Run
+def run(dTau, w0=1., iphas=2, gg=0.85,
+        umu0=1., phi0=0., albedo=0.1, fbeam=1.0,
+        UsrTau=True, utau=0., UsrAng=True, umu=1.,
+        phi=0., Nstr=32, maxmom=299, lamber=True,
+        onlyFl=False, accur=0., plank=False,
+        temp=300., wvnmlo=999., wvnmhi=1000.,
+        ibcnd=0, fisot=0., btemp=300., ttemp=300.,
+        temis=1., prnt=[False]*5, verbose=1):
 
-Open the driver script and provide values as requested. Run the driver script
-from the terminal.
+    """
 
-# Outputs
-
-Two plots are saved to the fig_path. First is the hemisphere-integrated spectral
-albedo at the surface. The second is the spectral albedo at the surface at each 
-viewing angle.
-
-# Notes
-
-DISORT in its original form is a <b>monochrome</b> radiation transport model. To run it
-spectrally over a waveband requires the valuesof ssa, tau, phase function/asymmetry
-parameter etc to be provided as arrays from the shortest wavelength to the longest.
-i.e. DISORT does not treat wavelength explicitly, but implicitly in that the values 
-provided for the input variables are mostly wavelength dependent.
-
-The driver script offers the option to run in MIE or GO mode - this changes the
-origin of the ice optical properties - either Mie scattering or Geometrical Optics.
-The former is good for small, dry snow modelling where the assumption of small spherical
-particles is appropriate. GO mode is more appropriate for large, aspherical ice crystals.
-In this case the GO calculations were based on hexagonal columns.
-
-## Installation
-
-runs in conda python 2.7 environment "pyDISORT" - start environment or build from
-disort_env.yml file using:
-
-```
-conda env create -f disort_env.yml
-```
-
-or build using commands:
-
-```
-conda create env -pyDISORT python=2.7 numpy matplotlib
-
-```
-Go to the directory where you have checked out the pyDISORT project and run the following command:
-```
-python setup.py install
-
-```
-
-## Documentation
-
-    >>> import disort
-    >>> help(disort.run)
-    
     performs radiative transfer simulations by means of the DISORT RT solver
 
     Parameters
@@ -185,8 +146,9 @@ python setup.py install
         (Default: 0.)
     PRNT : array(dtype=bool)
         Array of LOGICAL print flags causing the following prints
+           ===      ===============================================
            L        quantities printed
-          --        ------------------
+           ===      ===============================================
            1        input variables (except PMOM)
            2        fluxes
            3        intensities at user levels and angles
@@ -195,6 +157,7 @@ python setup.py install
            5        phase function moments PMOM for each layer
                     ( only if PRNT(1) = TRUE, and only for layers
                     with scattering )
+           ===      ===============================================
         (Default: array([False False False False False]))
 
     Returns
@@ -218,21 +181,39 @@ python setup.py install
     --------
     >>> import disort
     >>> D_dir, D_diff, U_up, dFdt, I = disort.run(dTau, ssalb, iphas='Rayleigh')
-    
-## Examples
+    """
 
-See `test` directory.
+    import numpy as np
 
-## TODO
+    if not hasattr(w0,'__iter__'):
+        w0 = w0 * np.ones_like(dTau)
+    if not hasattr(iphas,'__iter__'):
+        iphas = iphas * np.ones_like(dTau)
+    if not hasattr(gg,'__iter__'):
+        gg = gg * np.ones_like(dTau)
+    if not hasattr(temp,'__iter__'):
+        temp = temp * np.ones(len(dTau)+1)
+    if not hasattr(utau,'__iter__'):
+        utau = np.array([utau])
+    if not hasattr(umu,'__iter__'):
+        umu = np.array([umu])
+    if not hasattr(phi,'__iter__'):
+        phi = np.array([phi])
+    if not hasattr(prnt,'__iter__'):
+        prnt = prnt * np.ones(5, dtype='bool')
 
-- The current implementation have the following parameters hardcoded:
+    if verbose > 0:
+        print ' **************************************************************'+\
+            '**************************************'
+        print ' DISORT: Python wrapper to the DISORT radiative transfer solver'
+        print ' **************************************************************'+\
+            '**************************************'
 
-  - MXCLY  = 50   (Max no. of computational layers)
-  - MXULV  = 50   (Max no. of output levels)
-  - MXCMU  = 48   (Max no. of computation polar angles)
-  - MXUMU  = 10   (Max no. of output polar angles)
-  - MXPHI  = 3    (Max no. of output azimuthal angles)
-  - MXSQT  = 1000 (Max no. of square roots of integers (for LEPOLY))
+    rfldir, rfldn, flup, dfdt, uavg, uu, albmed, trnmed = \
+           _disort.run(dTau, w0, maxmom, temp, iphas, gg,
+                       wvnmlo, wvnmhi, UsrTau, utau, Nstr,
+                       UsrAng, umu, phi, ibcnd, fbeam,
+                       umu0, phi0, fisot, lamber, albedo, btemp,
+                       ttemp, temis, plank, onlyFl, accur, prnt)
 
-- These parameters are used as dimensions for array allocation. Allocation
-  should be done dynamically
+    return rfldir, rfldn, flup, dfdt, uavg, uu, albmed, trnmed
