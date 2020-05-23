@@ -27,10 +27,8 @@ Two plots are saved to the fig_path. First is the hemisphere-integrated spectral
 albedo at the surface. The second is the spectral albedo at the surface at each 
 viewing angle.
 
-img src="./assets/albedo_DISORT.png" width=1500>
-
-img src="./assets/BBA_DISORT.png" width=1500>
-
+![spectral albedo](./assets/albedo_DISORT.png)
+![broadband albedo](./assets/BBA_DISORT.png)
 
 # Notes
 
