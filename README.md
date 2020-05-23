@@ -16,13 +16,21 @@ Citation for original DISORT model:
 # How to Run
 
 Open the driver script and provide values as requested. Run the driver script
-from the terminal.
+from the terminal. <b>Note that as of 22/05/20 this code will not run on Ubuntu 20.04
+because the package libgfortran3 is not available - until libgfortran becomes
+avalable for Ubuntu 20.04 this code must be run on an earlier release - 16.04 is
+fine. <b>
 
 # Outputs
 
 Two plots are saved to the fig_path. First is the hemisphere-integrated spectral
 albedo at the surface. The second is the spectral albedo at the surface at each 
 viewing angle.
+
+img src="./assets/albedo_DISORT.png" width=1500>
+
+img src="./assets/BBA_DISORT.png" width=1500>
+
 
 # Notes
 

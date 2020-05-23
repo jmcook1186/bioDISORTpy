@@ -113,7 +113,6 @@ counter = 0
 #################################
 # CALL DISORT
 #################################
-for i in range(10):
 for ang in coszen:   # iterate over cosine of solar zenith angle
     for i in range(len(wvl)): # iterate over wavelength
 
