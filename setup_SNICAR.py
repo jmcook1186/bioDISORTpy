@@ -24,13 +24,13 @@ def setup_SNICAR(MIE, GO, DIRECT, DELTA, R_sfc, dz, rho_snw, rds_snw, side_lengt
         # set filename stubs
         stb1 = 'algae_geom_'  # %name stub 1
         stb2 = '.nc'  # file extension
-        wrkdir2 = '/home/joe/Code/BioSNICAR_GO_PY/Data/Algal_Optical_Props/'  # working directory
+        wrkdir2 = '/data/home/tothepoles/Desktop/bioDISORTpy/Data/Algal_Optical_Props/'  # working directory
         snw_stb1 = 'snw_alg_'  # name stub for snow algae
 
         # CHOOSE DIMENSIONS OF GLACIER ALGAE 1
         algae_r = 6  # algae radius
         algae_l = 120  # algae length
-        glacier_algae1 = str(wrkdir2 + stb1 + str(algae_r) + '_' + str(algae_l) + stb2)  # create filename string
+        glacier_algae1 = str(wrkdir2 + 'RealPhenol_algae_geom_6_60.nc')  # create filename string
 
         # CHOOSE DIMENSIONS OF GLACIER ALGAE 2
         algae2_r = 6  # algae radius
@@ -61,7 +61,7 @@ def setup_SNICAR(MIE, GO, DIRECT, DELTA, R_sfc, dz, rho_snw, rds_snw, side_lengt
         FILE_glacier_algae2 = glacier_algae2 # Glacier algae
 
         # set working directory (location of netcdf library)
-        dir_base = "/home/joe/Code/BioSNICAR_GO_PY/"
+        dir_base = "/data/home/tothepoles/Desktop/bioDISORTpy/"
 
         if MIE:
             dir_files = "Data/Mie_files/"

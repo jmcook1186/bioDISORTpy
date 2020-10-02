@@ -154,7 +154,6 @@ c     ..
       NTAU      = MAXULV
       NPHI      = MAXPHI
       NUMU      = MAXUMU
-      HEADER = 'Python wrapper to the DISORT radiative transfer solver'
 
       CALL  DISORT( NLYR, DTAUC, SSALB, NMOM, PMOM, TEMPER,
      &                 WVNMLO, WVNMHI, USRTAU, NTAU, UTAU, NSTR,

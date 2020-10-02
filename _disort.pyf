@@ -3,44 +3,6 @@
 
 python module _disort ! in 
     interface  ! in :_disort
-        function bdref(wvnmlo,wvnmhi,mu,mup,dphi) ! in :_disort:src/disort/src/BDREF.f
-            real :: wvnmlo
-            real :: wvnmhi
-            real :: mu
-            real :: mup
-            real :: dphi
-            real :: bdref
-        end function bdref
-        subroutine errmsg(messag,fatal) ! in :_disort:src/disort/src/ErrPack.f
-            character*(*) :: messag
-            logical :: fatal
-        end subroutine errmsg
-        function wrtbad(varnam) ! in :_disort:src/disort/src/ErrPack.f
-            character*(*) :: varnam
-            logical :: wrtbad
-        end function wrtbad
-        function wrtdim(dimnam,minval) ! in :_disort:src/disort/src/ErrPack.f
-            character*(*) :: dimnam
-            integer :: minval
-            logical :: wrtdim
-        end function wrtdim
-        function tstbad(varnam,relerr) ! in :_disort:src/disort/src/ErrPack.f
-            character*(*) :: varnam
-            real :: relerr
-            logical :: tstbad
-        end function tstbad
-        function r1mach(i) ! in :_disort:src/disort/src/RDI1MACH.f
-            integer :: i
-            real :: r1mach
-        end function r1mach
-        function d1mach(i) ! in :_disort:src/disort/src/RDI1MACH.f
-            integer :: i
-            double precision :: d1mach
-        end function d1mach
-        function i1mach(i) ! in :_disort:src/disort/src/RDI1MACH.f
-            integer :: i
-            integer :: i1mach
-        end function i1mach
         subroutine prtfin(utau,ntau,umu,numu,phi,nphi,maxulv,maxumu,onlyfl,rfldir,rfldn,flup,dfdt,uu,tstfir,tstfdn,tstfup,tstdfd,tstuu,maxtau,maxmu,maxaz) ! in :_disort:src/disort/src/PRTFIN.f
             real dimension(*) :: utau
             integer :: ntau
@@ -65,6 +27,24 @@ python module _disort ! in
             integer, optional,check(shape(tstuu,1)==maxmu),depend(tstuu) :: maxmu=shape(tstuu,1)
             integer, optional,check(shape(tstuu,2)==maxaz),depend(tstuu) :: maxaz=shape(tstuu,2)
         end subroutine prtfin
+        subroutine getmom(iphas,gg,nmom,pmom) ! in :_disort:src/disort/src/GETMOM.f
+            integer :: iphas
+            real :: gg
+            integer, optional,check((len(pmom)-1)>=nmom),depend(pmom) :: nmom=(len(pmom)-1)
+            real dimension(nmom + 1) :: pmom
+        end subroutine getmom
+        function r1mach(i) ! in :_disort:src/disort/src/RDI1MACH.f
+            integer :: i
+            real :: r1mach
+        end function r1mach
+        function d1mach(i) ! in :_disort:src/disort/src/RDI1MACH.f
+            integer :: i
+            double precision :: d1mach
+        end function d1mach
+        function i1mach(i) ! in :_disort:src/disort/src/RDI1MACH.f
+            integer :: i
+            integer :: i1mach
+        end function i1mach
         subroutine disort(nlyr,dtauc,ssalb,nmom,pmom,temper,wvnmlo,wvnmhi,usrtau,ntau,utau,nstr,usrang,numu,umu,nphi,phi,ibcnd,fbeam,umu0,phi0,fisot,lamber,albedo,btemp,ttemp,temis,plank,onlyfl,accur,prnt,header,maxcly,maxulv,maxumu,maxphi,maxmom,rfldir,rfldn,flup,dfdt,uavg,uu,albmed,trnmed) ! in :_disort:src/disort/src/DISORT.f
             integer :: nlyr
             real dimension(maxcly) :: dtauc
@@ -868,12 +848,6 @@ python module _disort ! in
             real :: sflup
             real :: sfldn
         end subroutine spaltr
-        subroutine getmom(iphas,gg,nmom,pmom) ! in :_disort:src/disort/src/GETMOM.f
-            integer :: iphas
-            real :: gg
-            integer, optional,check((len(pmom)-1)>=nmom),depend(pmom) :: nmom=(len(pmom)-1)
-            real dimension(nmom + 1) :: pmom
-        end subroutine getmom
         subroutine sgbco(abd,lda,n,ml,mu,ipvt,rcond,z) ! in :_disort:src/disort/src/LINPAK.f
             real dimension(lda,*) :: abd
             integer, optional,check(shape(abd,0)==lda),depend(abd) :: lda=shape(abd,0)
@@ -967,6 +941,32 @@ python module _disort ! in
             integer :: incx
             integer :: isamax
         end function isamax
+        subroutine errmsg(messag,fatal) ! in :_disort:src/disort/src/ErrPack.f
+            character*(*) :: messag
+            logical :: fatal
+        end subroutine errmsg
+        function wrtbad(varnam) ! in :_disort:src/disort/src/ErrPack.f
+            character*(*) :: varnam
+            logical :: wrtbad
+        end function wrtbad
+        function wrtdim(dimnam,minval) ! in :_disort:src/disort/src/ErrPack.f
+            character*(*) :: dimnam
+            integer :: minval
+            logical :: wrtdim
+        end function wrtdim
+        function tstbad(varnam,relerr) ! in :_disort:src/disort/src/ErrPack.f
+            character*(*) :: varnam
+            real :: relerr
+            logical :: tstbad
+        end function tstbad
+        function bdref(wvnmlo,wvnmhi,mu,mup,dphi) ! in :_disort:src/disort/src/BDREF.f
+            real :: wvnmlo
+            real :: wvnmhi
+            real :: mu
+            real :: mup
+            real :: dphi
+            real :: bdref
+        end function bdref
         subroutine run(maxcly,dtauc,ssalb,maxmom,temper,iphas,gg,wvnmlo,wvnmhi,usrtau,maxulv,utau,nstr,usrang,maxumu,umu,maxphi,phi,ibcnd,fbeam,umu0,phi0,fisot,lamber,albedo,btemp,ttemp,temis,plank,onlyfl,accur,prnt,rfldir,rfldn,flup,dfdt,uavg,uu,albmed,trnmed) ! in :_disort:src/disort/Driver.f
             integer, optional,intent(hide),check(len(dtauc)>=maxcly),depend(dtauc) :: maxcly=len(dtauc)
             real dimension(maxcly),intent(in) :: dtauc

@@ -6,7 +6,7 @@ Driver script for Python wrapper to the DISORT library that allows SNICAR style 
 definitions, calculation of optical thicknesses for mixed ice/impurity layers and operation
 over a wavelength range rather than monochrome calculations.
 
-SNICAR inputs re used to define an optical thickness, ssa and gg for each vertical layer - these
+SNICAR inputs are used to define an optical thickness, ssa and gg for each vertical layer - these
 are then fed into DISORT.
 
 Module '_disort' is auto-generated with f2py (version:2).
@@ -14,7 +14,7 @@ Module '_disort' is auto-generated with f2py (version:2).
 RUN THIS SCRIPT FROM THE TERMINAL!
 
 i.e
-cd /home/joe/Code/pyDISORT/test/
+cd /home/joe/Code/pyDISORT/
 python DISORT_driver.py
 
 
@@ -25,28 +25,31 @@ import numpy as np
 import matplotlib.pyplot as plt
 import setup_SNICAR
 
-save_path = '/home/joe/Code/pyDISORT/' # path to save figures to
+save_path = '/home/tothepoles/Desktop/bioDISORTpy/' # path to save figures to
 
 DIRECT = 1        # 1= Direct-beam incident flux, 0= Diffuse incident flux
 DELTA = 1        # 1= Apply Delta approximation, 0= No delta
-MIE = True          # use single scattering optical properties generating using Mie scattering
-GO = False          # use single scattering optical properties generating using geometric optics
-
+MIE = False          # use single scattering optical properties generating using Mie scattering
+GO = True          # use single scattering optical properties generating using geometric optics
+print_band_ratios = True
 #############################################
 ## 3. SET PHYSICAL PROPERTIES OF THE ICE/SNOW
 
-dz = [0.001, 0.01, 0.01, 0.1, 0.1] # thickness of each vertical layer (unit = m)
+dz = [0.001, 0.01, 0.01, 0.1, 0.4] # thickness of each vertical layer (unit = m)
 nbr_lyr = len(dz)  # number of snow layers
 R_sfc = 0.15 # reflectance of undrlying surface - set across all wavelengths
-rho_snw = [600, 600, 600, 600, 600] # density of each layer (unit = kg m-3)
+
+density = 650
+rho_snw = [density, density, density, density, density] # density of each layer (unit = kg m-3)
 
 # SET ICE GRAIN DIMENSIONS
 # if using Mie optical properties, set rds_snw
 rds_snw = [1500,1500,1500,1500,1500]
 
+size = 5000
 # if using GeometricOptics, set side_length and depth
-side_length = [3000,4000,5000,5000,5000]
-depth = [3000,4000,5000,5000,5000]
+side_length = [size,size,size,size,size]
+depth = [size,size,size,size,size]
 
 # SET IMPURITY MASS CONCENTRATIONS IN EACH LAYER
 # units are ppb or ng/g i.e. 1e3 = 1 ppm or 1 ug/g, 1e6 = 1 ppt or 1 mg/g
@@ -65,18 +68,18 @@ mss_cnc_GRISdustP1 = [0,0,0,0,0]  # GRIS dust 1 (Polashenki2015: low hematite)
 mss_cnc_GRISdustP2 = [0,0,0,0,0]  # GRIS dust 1 (Polashenki2015: median hematite)
 mss_cnc_GRISdustP3 = [0,0,0,0,0]  # GRIS dust 1 (Polashenki2015: median hematite)
 mss_cnc_snw_alg = [0,0,0,0,0]    # Snow Algae (spherical, C nivalis)
-mss_cnc_glacier_algae1 = [80000,0,0,0,0]    # glacier algae type1
+mss_cnc_glacier_algae1 = [0,0,0,0,0]    # glacier algae type1
 mss_cnc_glacier_algae2 = [0,0,0,0,0]    # glacier algae type2
 
 # DISORT CONFIG
 prnt = np.array([False, False, False, False, False]) # determines what info to print to console
 umu = 1.  # cosine of viewing zenith angle
-coszen = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9] # cosine of solar zenith angle
+coszen = [0.72]#[0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9] # cosine of solar zenith angle
 phi0 = [0.]  # solar azimuth angle
 phi = 0. # viewing azimuth angle
 albedo = 0.2  # albedo of underlying surface
 uTau = 0.  # optical thickness where fluxes are calculated
-Nstr = 32 # number of streams to include in model
+Nstr = 16 # number of streams to include in model
 
 # RETRIEVE OPTICAL THICKNESS, SSA, ASYMMETRY PARAMETER FROM SNICAR
 [flx_slr, g_star, SSA_star, tau_star, wvl] = setup_SNICAR.setup_SNICAR(
@@ -114,6 +117,7 @@ counter = 0
 # CALL DISORT
 #################################
 for ang in coszen:   # iterate over cosine of solar zenith angle
+
     for i in range(len(wvl)): # iterate over wavelength
 
         dTau = tau_star[:,i]
@@ -127,9 +131,11 @@ for ang in coszen:   # iterate over cosine of solar zenith angle
         alb_out[counter,i] = alb
 
     # calculcate broadband albedo
+    
     BBA_out[counter,:] = np.sum(alb_out[counter,:]*flx_slr)/np.sum(flx_slr)
 
     counter+=1
+
 
 ################################
 # PLOT FIGURES
@@ -138,8 +144,19 @@ for ang in coszen:   # iterate over cosine of solar zenith angle
 # plot albedo at each solar zenith
 plt.figure()
 alb_mean = np.mean(alb_out,axis=0)
+
+smooth = False
+
+if smooth:
+    from scipy.signal import savgol_filter
+    yhat = savgol_filter(alb_mean, 15, 3)
+    alb_mean = yhat
+
+
 for i in range(len(coszen)):
     plt.plot(wvl[0:250],alb_out[i,0:250],label='coszen: {}'.format(str(coszen[i])))
+
+
 plt.plot(wvl[0:250],alb_mean[0:250],linestyle='dashed',color='k',label='zenMean')
 plt.ylabel('Albedo')
 plt.xlabel('Wavelength')
@@ -154,4 +171,19 @@ plt.ylabel('BBA')
 plt.ylim(0,1)
 plt.savefig(str(save_path+'BBA_DISORT.png'))
 
-print(BBA_out)
+if print_band_ratios:
+
+    I2DBA = alb_mean[40]/alb_mean[36]
+    I3DBA = (alb_mean[36] - alb_mean[40]) / alb_mean[45]
+    NDCI = ((alb_mean[40]-alb_mean[38])-(alb_mean[45]-alb_mean[38]))*((alb_mean[40]-alb_mean[38])/(alb_mean[45]-alb_mean[38]))
+    MCI = (alb_mean[40]-alb_mean[36])/(alb_mean[40]+alb_mean[36])
+    II = np.log(alb_mean[26])/np.log(alb_mean[56])
+
+    print('wvls = {},{},{},{}'.format(wvl[40],wvl[36],wvl[38],wvl[45]))
+
+    print("\nINDEX VALUES")
+    print("2DBA Index: ",I2DBA)
+    print("3DBA index: ", I3DBA)
+    print("NDCI index: ", NDCI)
+    print("MCI index: ", MCI)
+    print("Impurity Index: ", II)
