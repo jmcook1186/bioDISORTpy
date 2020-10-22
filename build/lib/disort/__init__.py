@@ -202,12 +202,6 @@ def run(dTau, w0=1., iphas=2, gg=0.85,
     if not hasattr(prnt,'__iter__'):
         prnt = prnt * np.ones(5, dtype='bool')
 
-    if verbose > 0:
-        print ' **************************************************************'+\
-            '**************************************'
-        print ' DISORT: Python wrapper to the DISORT radiative transfer solver'
-        print ' **************************************************************'+\
-            '**************************************'
 
     rfldir, rfldn, flup, dfdt, uavg, uu, albmed, trnmed = \
            _disort.run(dTau, w0, maxmom, temp, iphas, gg,

@@ -16,6 +16,7 @@ def setup_SNICAR(MIE, GO, DIRECT, DELTA, R_sfc, dz, rho_snw, rds_snw, side_lengt
 
     if MIE and GO:
         print("*** ERROR: BOTH MIE AND GO SELECTED: PLEASE SET ONE TO FALSE *** ")
+   
     ##############################################
     ## 4) SET LAP CHARACTERISTICS
     else:
@@ -64,6 +65,7 @@ def setup_SNICAR(MIE, GO, DIRECT, DELTA, R_sfc, dz, rho_snw, rds_snw, side_lengt
         dir_base = "/data/home/tothepoles/Desktop/bioDISORTpy/"
 
         if MIE:
+
             dir_files = "Data/Mie_files/"
             # retrieve wavelength from arbitrary choice of netcdf file
             temp = xr.open_dataset(str(dir_base + dir_files + "ice_wrn_0500.nc"))
@@ -128,6 +130,22 @@ def setup_SNICAR(MIE, GO, DIRECT, DELTA, R_sfc, dz, rho_snw, rds_snw, side_lengt
                     s1 = "{}".format(str(rds_snw[i]))
                     s1 = s1.rjust(4,'0')
                     FILE_ice = str(dir_base+dir_files+fl_stb1+s1+fl_stb2)
+                
+                    # read in single scattering albedo, MAC and g for ice crystals in each layer
+                    file =  xr.open_dataset(FILE_ice)
+
+
+                    SSA = file['ss_alb'].values
+                    SSA_snw[i,:] = SSA
+
+                    ext_cff_mss = file['ext_cff_mss'].values
+                    MAC_snw[i,:] = ext_cff_mss
+
+                    asm_prm = file['asm_prm'].values
+                    g_snw[i,:] = asm_prm
+
+            
+                    
 
         if GO:
             fl_stb1 = "ice_geom_"
@@ -145,18 +163,20 @@ def setup_SNICAR(MIE, GO, DIRECT, DELTA, R_sfc, dz, rho_snw, rds_snw, side_lengt
                     FILE_ice = str(dir_base + dir_files + fl_stb1 + s1 + "_" + s2 + fl_stb2)
 
 
-        # read in single scattering albedo, MAC and g for ice crystals in each layer
-        with xr.open_dataset(FILE_ice) as temp:
+                # read in single scattering albedo, MAC and g for ice crystals in each layer
+                file =  xr.open_dataset(FILE_ice)
 
-            SSA = temp['ss_alb'].values
-            SSA_snw[i,:] = SSA
 
-            ext_cff_mss = temp['ext_cff_mss'].values
-            MAC_snw[i,:] = ext_cff_mss
+                SSA = file['ss_alb'].values
+                SSA_snw[i,:] = SSA
 
-            asm_prm = temp['asm_prm'].values
-            g_snw[i,:] = asm_prm
-            g_snw[g_snw > 0.999] = 0.999 # DISORT throws exception if g = 1
+                ext_cff_mss = file['ext_cff_mss'].values
+                MAC_snw[i,:] = ext_cff_mss
+
+                asm_prm = file['asm_prm'].values
+                g_snw[i,:] = asm_prm
+
+       
 
         # open netcdf files
         FILE_soot1 = xr.open_dataset(str(dir_base + dir_files+ FILE_soot1))
@@ -291,22 +311,30 @@ def setup_SNICAR(MIE, GO, DIRECT, DELTA, R_sfc, dz, rho_snw, rds_snw, side_lengt
         # for each layer, the layer mass (L) is density * layer thickness
         # for each layer the optical depth is the layer mass * the mass extinction coefficient
         # first for the ice in each layer
+        
         for i in range(nbr_lyr):
+
             L_snw[i] = rho_snw[i] * dz[i]
+            
             tau_snw[i, :] = L_snw[i] * MAC_snw[i, :]
 
         # then for the LAPs in each layer
         for i in range(nbr_lyr):
+
             for j in range(nbr_aer):
-                L_aer[i, j, :] = np.multiply(L_snw[i], MSSaer[i, j])
-                tau_aer[i, j, :] = np.multiply(L_aer[i, j, :], MACaer[j, :])
+                
+                L_aer[i, j, :] = L_snw[i]*MSSaer[i, j]
+
+                tau_aer[i, j, :] = L_aer[i, j, :]*MACaer[j, :]
 
                 tau_sum = tau_sum + tau_aer[i, j, :]
                 SSA_sum = SSA_sum + (tau_aer[i, j, :] * SSAaer[j, :])
                 g_sum = g_sum + (tau_aer[i, j, :] * SSAaer[j, :] * Gaer[j, :])
 
+
         # finally, for each layer calculate the effective SSA, tau and g for the snow+LAP
         for i in range(nbr_lyr):
+
             tau[i,:] = tau_sum[i,:] + tau_snw[i,:]
             SSA[i,:] = (1/tau[i,:]) * (SSA_sum[i,:] + SSA_snw[i,:] * tau_snw[i,:])
             g[i, :] = (1 / (tau[i, :] * (SSA[i, :]))) * (g_sum[i,:] + (g_snw[i, :] * SSA_snw[i, :] * tau_snw[i, :]))
@@ -327,5 +355,7 @@ def setup_SNICAR(MIE, GO, DIRECT, DELTA, R_sfc, dz, rho_snw, rds_snw, side_lengt
             g_star = g
             SSA_star = SSA
             tau_star = tau
+
+
 
     return flx_slr, g_star, SSA_star, tau_star, wvl
