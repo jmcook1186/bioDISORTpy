@@ -30,7 +30,7 @@ def setup_SNICAR(MIE, GO, DIRECT, DELTA, layer_type, snw_shp, shp_fctr, snw_ar, 
 
         # CHOOSE DIMENSIONS OF GLACIER ALGAE 1
         algae_r = 6  # algae radius
-        algae_l = 120  # algae length
+        algae_l = 60  # algae length
         glacier_algae1 = str(wrkdir2 + stb1 + str(algae_r) + '_' + str(algae_l) + stb2)  # create filename string
 
         # CHOOSE DIMENSIONS OF GLACIER ALGAE 2

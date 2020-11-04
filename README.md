@@ -64,6 +64,9 @@ The schematic above shows the flow of data through the model. The light blue rec
 input data, the white boxes with bold text are model scripts and the orange rectangle is 
 output data.
 
+In November 2020 I also introduced variable grain shapes using the method of He et al. (2016).
+
+
 # Installation
 
 runs in conda python 2.7 environment "pyDISORT" - start environment or build from
